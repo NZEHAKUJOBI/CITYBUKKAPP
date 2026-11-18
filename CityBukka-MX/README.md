@@ -169,3 +169,22 @@ flutter run -d windows
 ```bash
 flutter test
 ```
+
+## Progressive Web App (PWA)
+
+CityBukka MX ships as an installable, offline-capable PWA.
+
+```bash
+dart run tool/build_pwa.dart            # add --base-href=/path/ if not hosted at the domain root
+```
+
+Deploy `build/web` to any static **HTTPS** host (localhost also works for testing).
+
+- `web/manifest.json` – name, colours, standard + maskable icons.
+- `web/sw.js` – service worker: network-first page, cached app code/CanvasKit,
+  cached food photos (Unsplash) and fonts. Cache version is stamped per build.
+- `web/flutter_bootstrap.js` – disables Flutter's deprecated built-in worker.
+- Always build via the script: it serves CanvasKit locally (`--no-web-resources-cdn`)
+  so the app can start offline, and stamps the cache version.
+
+Install: Android/desktop Chrome → "Install app"; iOS Safari → Share → "Add to Home Screen".

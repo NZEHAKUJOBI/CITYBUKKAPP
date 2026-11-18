@@ -3,18 +3,23 @@
 <head>
   <base href="$FLUTTER_BASE_HREF">
   <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="Chop City Bukka - Authentic Urban Bukka & African Fusion Food Delivery in Minna, Niger State.">
+
+  <!-- PWA / installability -->
+  <meta name="theme-color" content="#0C2619">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="City Bukka">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Chop City Bukka">
-  <meta name="theme-color" content="#0C2619">
+  <meta name="apple-mobile-web-app-title" content="City Bukka">
+  <meta name="format-detection" content="telephone=no">
 
   <title>Chop City Bukka | Authentic Food Delivery Minna</title>
   <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.json">
   
   <style>
@@ -73,6 +78,32 @@
     <div class="brand-title">Chop City <span>Bukka</span></div>
     <div class="spinner"></div>
   </div>
+  <noscript>Chop City Bukka needs JavaScript enabled to run.</noscript>
   <script src="flutter_bootstrap.js" async></script>
+  <script>
+    // Offline support: register our own service worker (web/sw.js).
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').then(function () {
+          return navigator.serviceWorker.ready;
+        }).then(function (reg) {
+          // Hand the worker everything this first visit already downloaded
+          // (main.dart.js, CanvasKit, fonts…) so the next launch works offline.
+          var warm = function () {
+            if (!reg.active) return;
+            var urls = performance.getEntriesByType('resource')
+              .map(function (e) { return e.name; })
+              .filter(function (u) { return u.indexOf(location.origin) === 0; });
+            urls.push(location.href);
+            reg.active.postMessage({ type: 'warm-cache', urls: urls });
+          };
+          warm();
+          window.addEventListener('flutter-first-frame', warm, { once: true });
+        }).catch(function (err) {
+          console.warn('Service worker registration failed:', err);
+        });
+      });
+    }
+  </script>
 </body>
 </html>

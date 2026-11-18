@@ -253,6 +253,5 @@ class FadedAppHeader extends StatelessWidget {
       ),
     );
   }
-  }
 }
 
