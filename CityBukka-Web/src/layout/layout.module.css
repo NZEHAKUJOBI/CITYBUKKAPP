@@ -1,0 +1,216 @@
+/* ---------- Phone shell ---------- */
+.backdrop {
+  height: 100%;
+}
+
+.device {
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+  position: relative;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+  /* Makes position:fixed descendants (toasts) relative to the device frame. */
+  transform: translateZ(0);
+}
+
+@media (min-width: 501px) {
+  .backdrop {
+    display: grid;
+    place-items: center;
+    padding: 20px 16px;
+    background-color: var(--shell-bg);
+    background-image:
+      linear-gradient(rgba(230, 74, 25, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(230, 74, 25, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+
+  .device {
+    --safe-top: 0px;
+    --safe-bottom: 0px;
+    width: 412px;
+    height: clamp(700px, 94vh, 920px);
+    border: 10px solid var(--shell-border);
+    border-radius: 44px;
+    box-shadow: 0 16px 40px 4px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* ---------- Screen ---------- */
+.screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.footer {
+  padding: 12px 16px calc(12px + var(--safe-bottom, 0px));
+  background: var(--surface);
+  border-top: 0.5px solid var(--divider);
+}
+
+/* Inside tabs the nav bar already handles the bottom inset. */
+.tabContent .footer {
+  padding-bottom: 12px;
+}
+
+/* ---------- Tabs + bottom nav ---------- */
+.tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.tabContent {
+  flex: 1;
+  min-height: 0;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 4px calc(10px + var(--safe-bottom, 0px));
+  background: var(--surface);
+  border-top: 0.5px solid var(--divider);
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.navIcon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 32px;
+  border-radius: 16px;
+  transition: background 0.2s;
+}
+
+.navActive {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.navActive .navIcon {
+  background: rgba(16, 185, 129, 0.18);
+  color: var(--green);
+}
+
+.badge {
+  position: absolute;
+  top: 0;
+  right: 14px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--green);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* ---------- Splash ---------- */
+.splash {
+  position: absolute;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #071910;
+  animation: splashOut 0.5s ease-in 1.4s forwards;
+}
+
+.glowA,
+.glowB {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.glowA {
+  top: -100px;
+  left: -100px;
+  width: 300px;
+  height: 300px;
+  background: rgba(230, 74, 25, 0.2);
+}
+
+.glowB {
+  bottom: -80px;
+  right: -80px;
+  width: 250px;
+  height: 250px;
+  background: rgba(255, 179, 0, 0.15);
+}
+
+.splashBrand {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: splashIn 1s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.splashLogo {
+  border-radius: 50%;
+  filter: drop-shadow(0 10px 32px rgba(230, 74, 25, 0.35));
+}
+
+.splashTitle {
+  margin-top: 20px;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: #fff;
+}
+
+.splashTitle span {
+  color: var(--secondary);
+}
+
+.splashTagline {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3.5px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.splashSpinner {
+  margin-top: 36px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 179, 0, 0.2);
+  border-top-color: var(--secondary);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes splashIn {
+  from { opacity: 0; transform: scale(0.8); }
+}
+
+@keyframes splashOut {
+  to { opacity: 0; visibility: hidden; }
+}

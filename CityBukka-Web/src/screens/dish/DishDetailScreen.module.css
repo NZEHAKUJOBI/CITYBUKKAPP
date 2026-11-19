@@ -1,0 +1,256 @@
+.root {
+  position: relative;
+  height: 100%;
+}
+
+.center {
+  display: grid;
+  place-items: center;
+  padding: 60px 0;
+}
+
+/* Back / favourite buttons stay pinned over the scrolling content (SliverAppBar pinned). */
+.topBar {
+  position: absolute;
+  top: calc(10px + var(--safe-top, 0px));
+  left: 12px;
+  right: 12px;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.circleButton {
+  pointer-events: auto;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+}
+
+.circleButton:hover {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.hero {
+  position: relative;
+  height: 280px;
+}
+
+.heroImage {
+  height: 100%;
+}
+
+.heroShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.3), transparent 50%, rgba(0, 0, 0, 0.6));
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 20px 32px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.pill,
+.spicePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pill {
+  background: var(--card);
+}
+
+.pill svg {
+  color: var(--primary);
+}
+
+.spicePill {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary-light);
+  font-weight: 700;
+}
+
+.description {
+  margin-top: 18px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.group {
+  margin: 24px 0 0;
+  padding: 16px;
+  border: 0.8px solid var(--divider);
+  border-radius: 16px;
+  background: var(--card);
+  min-width: 0;
+}
+
+.group + .group {
+  margin-top: 20px;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.groupName {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.required,
+.optional {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.required {
+  background: color-mix(in srgb, var(--primary) 15%, transparent);
+  color: var(--primary-light);
+}
+
+.optional {
+  background: rgba(158, 158, 158, 0.15);
+  color: var(--text-muted);
+}
+
+.groupHint {
+  margin: -4px 0 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.option:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.option:has(input:focus-visible) {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.optionDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.iconOn {
+  flex-shrink: 0;
+  color: var(--primary);
+}
+
+.iconOff {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.optionName {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.extra {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary-light);
+}
+
+.sectionTitle {
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.instructions {
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.instructions:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.counter {
+  margin-top: 4px;
+  align-self: flex-end;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.missing {
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--secondary);
+}
+
+.orderBar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.addButton {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+}

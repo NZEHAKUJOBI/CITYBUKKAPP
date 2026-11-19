@@ -1,0 +1,55 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 24px;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 700;
+  transition: filter 0.15s, transform 0.1s;
+}
+
+.button:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+.button:disabled {
+  opacity: 0.55;
+}
+
+.button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.full {
+  width: 100%;
+}
+
+.primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.green {
+  background: var(--green);
+  color: #fff;
+}
+
+.gold {
+  background: var(--secondary);
+  color: #1a1a1a;
+}
+
+.outlined {
+  background: transparent;
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
+}
+
+.primary:not(:disabled):hover,
+.green:not(:disabled):hover,
+.gold:not(:disabled):hover {
+  filter: brightness(1.08);
+}

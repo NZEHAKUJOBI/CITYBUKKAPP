@@ -1,0 +1,140 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  padding: 18px 18px 32px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 18px;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.sectionTitle {
+  margin-bottom: 10px;
+  padding: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: var(--surface);
+  border: 0.8px solid var(--divider);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.selected {
+  border: 1.6px solid var(--primary);
+  /* keep content from shifting when the border thickens */
+  padding: 13.2px;
+}
+
+.option:has(.radio:focus-visible) {
+  outline: 2px solid var(--secondary);
+  outline-offset: 2px;
+}
+
+.radio {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.methodIcon {
+  flex-shrink: 0;
+  color: var(--primary);
+}
+
+.optionText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.optionTitle {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.optionSubtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.group:last-of-type .optionSubtitle {
+  font-size: 11px;
+}
+
+.eta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--card);
+}
+
+.etaIcon {
+  flex-shrink: 0;
+  color: var(--secondary);
+}
+
+.etaTitle {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.etaSubtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.summary {
+  margin-top: 4px;
+  padding: 16px;
+  background: var(--surface);
+  border: 0.8px solid var(--divider);
+  border-radius: var(--radius-md);
+}
+
+.summaryTitle {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.summaryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.summaryCount {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.summaryTotal {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.placeButton {
+  margin-top: 30px;
+}

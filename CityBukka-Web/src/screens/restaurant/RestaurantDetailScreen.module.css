@@ -1,0 +1,188 @@
+.root {
+  position: relative;
+  height: 100%;
+}
+
+.center {
+  display: grid;
+  place-items: center;
+  padding: 40px 0;
+}
+
+.backButton {
+  position: absolute;
+  top: calc(10px + var(--safe-top, 0px));
+  left: 12px;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+}
+
+.backButton:hover {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.hero {
+  position: relative;
+  height: 240px;
+}
+
+.heroImage {
+  height: 100%;
+}
+
+.heroShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4), transparent 50%, rgba(0, 0, 0, 0.7));
+}
+
+.info {
+  padding: 20px 20px 12px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.titleCol {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.tagline {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin-top: 16px;
+  padding: 14px;
+  border: 0.8px solid var(--divider);
+  border-radius: 14px;
+  background: var(--card);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.stat svg {
+  margin-bottom: 2px;
+  color: var(--primary);
+}
+
+.statValue {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.statDivider {
+  width: 1px;
+  height: 28px;
+  background: var(--divider);
+}
+
+.description {
+  margin-top: 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.count {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0 20px 100px;
+  list-style: none;
+}
+
+/* Floating "View Bag" bar (only while the bag has items). */
+.bagBar {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: calc(16px + var(--safe-bottom, 0px));
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: var(--gradient-primary);
+  color: #fff;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--primary) 40%, transparent);
+  font-weight: 800;
+}
+
+.bagLeft,
+.bagRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bagLeft {
+  font-size: 15px;
+}
+
+.bagRight {
+  gap: 6px;
+  font-size: 16px;
+}
+
+.bagCount {
+  display: grid;
+  place-items: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 13px;
+}

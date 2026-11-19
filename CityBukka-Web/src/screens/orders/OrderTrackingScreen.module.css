@@ -1,0 +1,263 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px 20px 40px;
+}
+
+/* Hero banner */
+.hero {
+  padding: 20px;
+  border-radius: 20px;
+  background: var(--gradient-primary);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(230, 74, 25, 0.35);
+}
+
+.heroCancelled {
+  background: var(--card);
+  border: 0.8px solid var(--divider);
+  box-shadow: none;
+}
+
+.heroTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.heroTag {
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.heroTitle {
+  margin-top: 12px;
+  font-size: 26px;
+  font-weight: 900;
+}
+
+.heroText {
+  margin-top: 6px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.sectionTitle {
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/* Timeline */
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.step {
+  display: flex;
+  gap: 14px;
+}
+
+.stepMarker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stepCircle {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 1.5px solid var(--text-muted);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stepReached .stepCircle {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.stepLine {
+  width: 2px;
+  height: 36px;
+  background: var(--divider);
+}
+
+.stepDone .stepLine {
+  background: var(--primary);
+}
+
+.stepSpinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stepSpinner {
+    animation: none;
+  }
+}
+
+.stepText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 4px;
+  min-width: 0;
+}
+
+.stepTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.stepReached .stepTitle {
+  font-weight: 800;
+  color: var(--text);
+}
+
+.stepSub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Cards */
+.card {
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 0.8px solid var(--divider);
+}
+
+.rider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.riderAvatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255, 179, 0, 0.2);
+  color: var(--primary);
+}
+
+.riderInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.riderNameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.riderName {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.riderRating {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: rgba(255, 179, 0, 0.2);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.riderVehicle {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.call {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+}
+
+.summaryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.summaryLabel {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.summaryTotal {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.summaryAddress {
+  margin: 6px 0 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.summaryMeta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.cancel {
+  margin-bottom: -12px;
+  color: var(--error);
+  border-color: var(--error);
+}
+
+.danger {
+  background: var(--error);
+}

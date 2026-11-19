@@ -1,0 +1,67 @@
+/* Design tokens – mirror CityBukka-MX lib/core/theme/app_colors.dart.
+   Both of the app's themes are dark green; "light" is only a slightly lighter green. */
+:root {
+  /* Brand */
+  --primary: #e64a19;
+  --primary-light: #ff7d47;
+  --primary-dark: #bf360c;
+  --secondary: #ffb300;
+  --secondary-light: #ffe082;
+  --secondary-dark: #ff8f00;
+  --green: #10b981;
+  --green-light: #d1fae5;
+  --green-dark: #047857;
+
+  /* Feedback */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+  --star: #fbbf24;
+  --favorite: #ff5252;
+
+  /* Spice */
+  --spice-mild: #10b981;
+  --spice-medium: #f59e0b;
+  --spice-hot: #ef4444;
+  --spice-fire: #881337;
+
+  /* Gradients */
+  --gradient-green: linear-gradient(135deg, #10b981, #059669, #047857);
+  --gradient-primary: linear-gradient(135deg, #ff5722, #e64a19, #bf360c);
+  --gradient-gold: linear-gradient(135deg, #ffc107, #ffb300, #ffa000);
+  --gradient-card: linear-gradient(180deg, #133624, #0c2619);
+
+  /* Shape */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.04);
+
+  /* Dark theme (default) */
+  --bg: #071910;
+  --surface: #0c2619;
+  --card: #133624;
+  --divider: #1e4b34;
+  --text: #f3faf5;
+  --text-secondary: #a7d5be;
+  --text-muted: #709e88;
+  --shell-bg: #09100c;
+  --shell-border: #28362d;
+
+  color-scheme: dark;
+  font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+:root[data-theme='light'] {
+  --bg: #081c13;
+  --surface: #0d281c;
+  --card: #133624;
+  --divider: #1e4b34;
+  --text: #f3faf5;
+  --text-secondary: #a7d5be;
+  --text-muted: #709e88;
+  --shell-bg: #ecefea;
+  --shell-border: #d4ddd7;
+}

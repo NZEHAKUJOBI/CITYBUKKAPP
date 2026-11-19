@@ -1,0 +1,189 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 0.8px solid var(--divider);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.15s;
+}
+
+.card:hover {
+  border-color: color-mix(in srgb, var(--divider) 60%, var(--green));
+}
+
+.card:active {
+  transform: scale(0.99);
+}
+
+.restaurant {
+  border-radius: var(--radius-lg);
+}
+
+.media {
+  position: relative;
+}
+
+.foodImage {
+  aspect-ratio: 16 / 10;
+}
+
+.coverImage {
+  aspect-ratio: 16 / 9;
+}
+
+.spice {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 3px 7px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.favorite {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.restaurant .favorite {
+  top: 10px;
+  right: 10px;
+}
+
+.featured {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--gradient-primary);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.eta {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  flex: 1;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.foodName {
+  font-size: 15px;
+  font-weight: 700;
+  min-width: 0;
+}
+
+.restaurantName {
+  font-size: 16px;
+  font-weight: 800;
+  min-width: 0;
+}
+
+/* Name is a real button for keyboard/screen-reader users; looks like plain text. */
+.openLink {
+  font-weight: inherit;
+  text-align: left;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.description {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--text-secondary);
+}
+
+.tagline {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+.price {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.add {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.fee {
+  font-weight: 600;
+}
