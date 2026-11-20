@@ -13,14 +13,22 @@ body,
   margin: 0;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   background: var(--bg);
   color: var(--text);
-  font-size: 14px;
-  line-height: 1.45;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
+  transition: background-color var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
 }
 
 button,
@@ -39,7 +47,7 @@ button {
 }
 
 button:disabled {
-  cursor: default;
+  cursor: not-allowed;
 }
 
 a {
@@ -52,13 +60,35 @@ img {
   max-width: 100%;
 }
 
+h1, h2, h3, h4, p {
+  margin: 0;
+}
+
+h1, h2, h3 {
+  letter-spacing: -0.01em;
+  line-height: var(--leading-tight);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--secondary) 45%, transparent);
+}
+
+/* Visible, high-contrast focus for keyboard users only. */
+:focus {
+  outline: none;
+}
+
 :focus-visible {
-  outline: 2px solid var(--secondary);
+  outline: 2px solid var(--focus-color);
   outline-offset: 2px;
 }
 
-h1, h2, h3, h4, p {
-  margin: 0;
+/* Thin, unobtrusive scrollbars on desktop. */
+@media (pointer: fine) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
 }
 
 /* Shared utilities */
@@ -76,9 +106,12 @@ h1, h2, h3, h4, p {
 }
 
 .visually-hidden {
-  position: absolute;
+  position: absolute !important;
   width: 1px;
   height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
@@ -91,13 +124,34 @@ h1, h2, h3, h4, p {
   display: none;
 }
 
+.display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.02em;
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(10px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -31,22 +31,38 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,jpg,svg,woff2}'],
+        // The admin and rider chunks (lazy-loaded) aren't precached, so customers never download them.
+        globIgnores: ['**/AdminApp-*.{js,css}', '**/RiderApp-*.{js,css}'],
         navigateFallback: 'index.html',
+        // Admin needs the network anyway; API and uploaded files are never answered with the app shell.
+        navigateFallbackDenylist: [/^\/admin(\/|$)/, /^\/api\//, /^\/uploads\//],
         runtimeCaching: [
           {
-            // Food and restaurant photos
-            urlPattern: ({ url }) => url.hostname === 'images.unsplash.com',
+            // Staff endpoints: never cached (must be listed before the generic /api/ rule).
+            urlPattern: ({ url }) => url.pathname.startsWith('/api/admin'),
+            handler: 'NetworkOnly',
+          },
+          {
+            // Images uploaded through the admin panel (served by CityBukka-Server).
+            urlPattern: ({ url }) => url.pathname.startsWith('/uploads/'),
             handler: 'CacheFirst',
             options: {
-              cacheName: 'citybukka-images',
-              expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheName: 'citybukka-uploads',
+              expiration: { maxEntries: 150, maxAgeSeconds: 60 * 60 * 24 * 30 },
               cacheableResponse: { statuses: [0, 200] },
             },
           },
           {
-            urlPattern: ({ url }) => url.pathname.startsWith('/api/'),
+            // Public catalogue + fees: fresh when online, last copy when offline.
+            urlPattern: ({ url, request }) => request.method === 'GET'
+              && /^\/api\/(categories|restaurants|food-items|meta)(\/|$)/.test(url.pathname),
             handler: 'NetworkFirst',
             options: { cacheName: 'citybukka-api', networkTimeoutSeconds: 5 },
+          },
+          {
+            // Auth, profile, favourites, cart quotes and orders are per-customer: never cached.
+            urlPattern: ({ url }) => url.pathname.startsWith('/api/'),
+            handler: 'NetworkOnly',
           },
         ],
       },
@@ -54,7 +70,10 @@ export default defineConfig({
   ],
   server: {
     // Forward API calls to CityBukka-Server during development.
-    proxy: { '/api': 'http://localhost:8080' },
+    proxy: {
+      '/api': 'http://localhost:8080',
+      '/uploads': 'http://localhost:8080',
+    },
   },
   test: {
     environment: 'jsdom',

@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useMemo, type ReactNode } from 
 import { computeTotals, isValidPromo, normalizePromo, sameSelection } from '../lib/pricing';
 import type { CartItem, CartTotals, CustomizationOption, FoodItem } from '../types';
 import { usePersistentState } from './persist';
+import { useMeta } from './useMeta';
 
 interface CartState {
   items: CartItem[];
@@ -16,6 +17,8 @@ export interface AddToCartInput {
 }
 
 interface CartContextValue extends CartTotals {
+  /** Free-delivery threshold from GET /api/meta. */
+  freeDeliveryThreshold: number;
   items: CartItem[];
   promoCode: string | null;
   addItem(input: AddToCartInput): void;
@@ -37,7 +40,8 @@ export function defaultOptions(food: FoodItem): CustomizationOption[] {
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = usePersistentState<CartState>('cart', { items: [], promoCode: null });
+  const [state, setState] = usePersistentState<CartState>('cart:v2', { items: [], promoCode: null });
+  const { fees } = useMeta();
 
   const addItem = useCallback((input: AddToCartInput) => {
     const selectedOptions = input.selectedOptions ?? defaultOptions(input.foodItem);
@@ -89,9 +93,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const value = useMemo<CartContextValue>(() => ({
     items: state.items,
     promoCode: state.promoCode,
-    ...computeTotals(state.items, state.promoCode),
+    ...computeTotals(state.items, state.promoCode, fees),
+    freeDeliveryThreshold: fees.freeDeliveryThreshold,
     addItem, updateQuantity, removeItem, clear, applyPromo, removePromo,
-  }), [state, addItem, updateQuantity, removeItem, clear, applyPromo, removePromo]);
+  }), [state, fees, addItem, updateQuantity, removeItem, clear, applyPromo, removePromo]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

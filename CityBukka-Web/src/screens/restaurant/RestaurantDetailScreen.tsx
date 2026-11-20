@@ -1,10 +1,10 @@
-import { ArrowLeft, ArrowRight, Bike, Clock, MapPin, SearchX, Store } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Bike, ChefHat, Clock, MapPin, SearchX, ShoppingBag, Store, WifiOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { FoodItemCard } from '../../components/cards';
 import { PageHeader } from '../../components/PageHeader';
 import { EmptyState, FallbackImage, RatingBadge } from '../../components/small';
-import { Spinner } from '../../components/Spinner';
+import { CardSkeleton, LoadingRegion, Skeleton } from '../../components/Skeleton';
 import { api } from '../../data/api';
 import { Screen } from '../../layout/layout';
 import { deliveryTimeLabel, formatNaira } from '../../lib/format';
@@ -19,22 +19,49 @@ export function RestaurantDetailScreen() {
   const navigate = useNavigate();
   const [restaurant, setRestaurant] = useState<Restaurant | null | undefined>(undefined);
   const [menu, setMenu] = useState<FoodItem[] | null>(null);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     setRestaurant(undefined);
     setMenu(null);
-    api.getRestaurant(id).then((r) => { if (!cancelled) setRestaurant(r); });
-    api.getFoodItems({ restaurantId: id }).then((items) => { if (!cancelled) setMenu(items); });
+    setFailed(false);
+    const fail = () => { if (!cancelled) setFailed(true); };
+    api.getRestaurant(id).then((r) => { if (!cancelled) setRestaurant(r); }, fail);
+    api.getFoodItems({ restaurantId: id }).then((items) => { if (!cancelled) setMenu(items); }, () => {
+      if (!cancelled) setMenu([]);
+    });
     return () => { cancelled = true; };
-  }, [id]);
+  }, [id, attempt]);
 
   const goBack = () => (window.history.length > 1 ? navigate(-1) : navigate('/'));
+
+  if (failed) {
+    return (
+      <Screen header={<PageHeader title="Bukka" onBack={goBack} />}>
+        <EmptyState
+          icon={<WifiOff size={56} />}
+          title="Can't load this bukka"
+          message="We couldn't reach CityBukka. Check your connection and try again."
+          buttonText="Try again"
+          onButtonClick={() => setAttempt((n) => n + 1)}
+        />
+      </Screen>
+    );
+  }
 
   if (restaurant === undefined) {
     return (
       <Screen header={<PageHeader title="" onBack={goBack} />}>
-        <div className={styles.center}><Spinner color="var(--primary)" label="Loading restaurant" /></div>
+        <LoadingRegion label="Loading restaurant" className={styles.loading}>
+          <Skeleton className={styles.heroSkeleton} radius={0} />
+          <div className={styles.info}>
+            <Skeleton width="60%" height={30} radius={10} />
+            <Skeleton width="40%" height={14} style={{ marginTop: 12 }} />
+            <Skeleton height={76} radius={18} style={{ marginTop: 24 }} />
+          </div>
+        </LoadingRegion>
       </Screen>
     );
   }
@@ -67,46 +94,55 @@ function RestaurantDetail({ restaurant, menu, onBack }: {
   return (
     <div className={styles.root}>
       <button type="button" className={styles.backButton} onClick={onBack} aria-label="Go back">
-        <ArrowLeft size={22} />
+        <ArrowLeft size={22} aria-hidden />
       </button>
 
-      <Screen>
+      <Screen className={itemCount > 0 ? styles.withBagBar : undefined}>
         <div className={styles.hero}>
           <FallbackImage src={restaurant.coverImageUrl} alt={restaurant.name} className={styles.heroImage}
-            fallbackIcon={<Store size={60} />} />
+            fallbackIcon={<Store size={60} />} priority />
           <div className={styles.heroShade} aria-hidden />
         </div>
 
         <div className={styles.info}>
-          <div className={styles.titleRow}>
-            <div className={styles.titleCol}>
-              <h1 className={styles.name}>{restaurant.name}</h1>
-              <p className={styles.tagline}>{restaurant.tagline}</p>
+          <div className={styles.infoCard}>
+            <div className={styles.titleRow}>
+              <div className={styles.titleCol}>
+                <div className={styles.flags}>
+                  <span className={restaurant.isOpen ? styles.open : styles.closed}>
+                    {restaurant.isOpen ? 'Open now' : 'Closed'}
+                  </span>
+                  {restaurant.cuisines.slice(0, 3).map((c) => <span key={c} className={styles.cuisine}>{c}</span>)}
+                </div>
+                <h1 className={styles.name}>{restaurant.name}</h1>
+                <p className={styles.tagline}>{restaurant.tagline}</p>
+              </div>
+              <RatingBadge rating={restaurant.rating} reviewCount={restaurant.reviewCount} />
             </div>
-            <RatingBadge rating={restaurant.rating} reviewCount={restaurant.reviewCount} />
-          </div>
 
-          <div className={styles.stats}>
-            <div className={styles.stat}>
-              <Clock size={18} aria-hidden />
-              <span className={styles.statValue}>{deliveryTimeLabel(restaurant.deliveryTimeMin, restaurant.deliveryTimeMax)}</span>
-              <span className={styles.statLabel}>Delivery Time</span>
+            <div className={styles.stats}>
+              <div className={styles.stat}>
+                <span className={styles.statIcon}><Clock size={18} aria-hidden /></span>
+                <span className={styles.statValue}>{deliveryTimeLabel(restaurant.deliveryTimeMin, restaurant.deliveryTimeMax)}</span>
+                <span className={styles.statLabel}>Delivery Time</span>
+              </div>
+              <div className={styles.stat}>
+                <span className={styles.statIcon}><Bike size={18} aria-hidden /></span>
+                <span className={styles.statValue}>{formatNaira(restaurant.deliveryFee)}</span>
+                <span className={styles.statLabel}>Delivery Fee</span>
+              </div>
+              <div className={styles.stat}>
+                <span className={styles.statIcon}><MapPin size={18} aria-hidden /></span>
+                <span className={styles.statValue}>{restaurant.distanceKm} km</span>
+                <span className={styles.statLabel}>Distance</span>
+              </div>
             </div>
-            <span className={styles.statDivider} aria-hidden />
-            <div className={styles.stat}>
-              <Bike size={18} aria-hidden />
-              <span className={styles.statValue}>{formatNaira(restaurant.deliveryFee)}</span>
-              <span className={styles.statLabel}>Delivery Fee</span>
-            </div>
-            <span className={styles.statDivider} aria-hidden />
-            <div className={styles.stat}>
-              <MapPin size={18} aria-hidden />
-              <span className={styles.statValue}>{restaurant.distanceKm} km</span>
-              <span className={styles.statLabel}>Distance</span>
-            </div>
-          </div>
 
-          <p className={styles.description}>{restaurant.description}</p>
+            <p className={styles.description}>{restaurant.description}</p>
+            {restaurant.address && (
+              <p className={styles.address}><MapPin size={14} aria-hidden /> {restaurant.address}</p>
+            )}
+          </div>
 
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Bukka Specialties</h2>
@@ -115,7 +151,15 @@ function RestaurantDetail({ restaurant, menu, onBack }: {
         </div>
 
         {menu === null ? (
-          <div className={styles.center}><Spinner color="var(--primary)" label="Loading menu" /></div>
+          <LoadingRegion label="Loading menu" className={styles.menu}>
+            {Array.from({ length: 4 }, (_, i) => <CardSkeleton key={i} />)}
+          </LoadingRegion>
+        ) : menu.length === 0 ? (
+          <EmptyState
+            icon={<ChefHat size={48} />}
+            title="Menu coming soon"
+            message="This bukka's menu is being prepared — check back soon."
+          />
         ) : (
           <ul className={styles.menu}>
             {menu.map((item) => (
@@ -137,6 +181,7 @@ function RestaurantDetail({ restaurant, menu, onBack }: {
         <button type="button" className={styles.bagBar} onClick={() => navigate('/bag')}>
           <span className={styles.bagLeft}>
             <span className={styles.bagCount}>{itemCount}</span>
+            <ShoppingBag size={18} aria-hidden />
             View Bag
           </span>
           <span className={styles.bagRight}>

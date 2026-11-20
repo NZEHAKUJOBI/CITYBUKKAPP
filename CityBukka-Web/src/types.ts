@@ -81,6 +81,13 @@ export interface CartItem {
   specialInstructions: string;
 }
 
+export interface OrderRider {
+  id: string;
+  name: string;
+  phone: string | null;
+  vehicle: string | null;
+}
+
 export interface Order {
   id: string;
   items: CartItem[];
@@ -90,28 +97,35 @@ export interface Order {
   packagingFee: number;
   discount: number;
   total: number;
+  promoCode?: string | null;
   status: OrderStatus;
   /** ISO-8601 timestamp */
   createdAt: string;
+  updatedAt?: string;
   deliveryAddress: string;
+  /** Number the rider calls on arrival (defaults to the customer's phone). */
+  contactPhone: string;
   paymentMethod: string;
-  riderName: string | null;
-  riderPhone: string | null;
-  riderVehicle: string | null;
-  riderRating: number | null;
+  /** Set once a rider has been assigned. */
+  rider: OrderRider | null;
   estimatedDeliveryMinutes: number;
 }
 
+export type UserRole = 'customer' | 'rider' | 'admin' | string;
+
+/** Signed-in customer as returned by /api/auth/* and /api/me. */
 export interface UserProfile {
   id: string;
   name: string;
-  email: string;
   phone: string;
-  avatarUrl: string;
+  email: string | null;
+  role: UserRole;
+  avatarUrl: string | null;
   loyaltyPoints: number;
   savedAddresses: string[];
-  selectedAddress: string;
+  selectedAddress: string | null;
   isDarkMode: boolean;
+  createdAt?: string;
 }
 
 export interface CartTotals {

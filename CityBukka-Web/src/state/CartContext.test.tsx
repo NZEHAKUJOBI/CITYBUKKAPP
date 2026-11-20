@@ -1,12 +1,17 @@
 import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { foodItems } from '../data/mockData';
+import { foodItems } from '../test/fixtures';
+import { installFakeServer, resetClientState } from '../test/fakeServer';
 import { CartProvider, useCart } from './CartContext';
 
 const wrapper = ({ children }: { children: ReactNode }) => <CartProvider>{children}</CartProvider>;
 const jollof = foodItems.find((f) => f.id === 'food_jellof_rice')!;
 
-beforeEach(() => localStorage.clear());
+beforeEach(() => {
+  resetClientState();
+  installFakeServer();
+});
+afterEach(() => vi.unstubAllGlobals());
 
 describe('CartContext', () => {
   it('auto-selects required options and merges identical lines', () => {

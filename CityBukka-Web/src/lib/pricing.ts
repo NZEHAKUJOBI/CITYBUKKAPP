@@ -12,16 +12,26 @@ export const lineTotal = (item: CartItem) => (k(unitPrice(item)) * item.quantity
 export const normalizePromo = (code: string) => code.trim().toUpperCase();
 export const isValidPromo = (code: string) => normalizePromo(code) in PROMO_CODES;
 
-/** Same rules as the app's CartRepository and the server's priceCart(). */
-export function computeTotals(items: CartItem[], promoCode: string | null): CartTotals {
+export interface FeeSchedule {
+  standardDelivery: number;
+  service: number;
+  packaging: number;
+  freeDeliveryThreshold: number;
+}
+
+/**
+ * Same rules as the server's priceCart(). This is only a preview for the bag –
+ * the server recomputes every total when the order is placed.
+ */
+export function computeTotals(items: CartItem[], promoCode: string | null, fees: FeeSchedule = FEES): CartTotals {
   const itemCount = items.reduce((n, i) => n + i.quantity, 0);
   if (items.length === 0) {
     return { itemCount: 0, subtotal: 0, deliveryFee: 0, serviceFee: 0, packagingFee: 0, discount: 0, total: 0 };
   }
   const subtotal = items.reduce((s, i) => s + k(lineTotal(i)), 0);
-  const delivery = subtotal >= k(FEES.freeDeliveryThreshold) ? 0 : k(FEES.standardDelivery);
-  const service = k(FEES.service);
-  const packaging = k(FEES.packaging);
+  const delivery = subtotal >= k(fees.freeDeliveryThreshold) ? 0 : k(fees.standardDelivery);
+  const service = k(fees.service);
+  const packaging = k(fees.packaging);
 
   let discount = 0;
   const promo = promoCode ? PROMO_CODES[normalizePromo(promoCode)] : undefined;

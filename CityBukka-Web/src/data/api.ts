@@ -1,10 +1,11 @@
+import { API_BASE_URL } from '../config/env';
 import type { FoodCategory, FoodItem, Restaurant } from '../types';
-import { categories, foodItems, restaurants } from './mockData';
+import { createHttpCatalogApi } from './httpCatalogApi';
 
 /**
- * Catalogue access. Matches the endpoints of CityBukka-Server
- * (GET /api/restaurants, /api/food-items, …) so an HTTP version can replace
- * `mockCatalogApi` without touching the screens.
+ * Catalogue access. Matches the public endpoints of CityBukka-Server
+ * (GET /api/restaurants, /api/food-items, …). There is no bundled demo data:
+ * until the admin adds restaurants and dishes the app is simply empty.
  */
 export interface CatalogApi {
   getCategories(): Promise<FoodCategory[]>;
@@ -14,45 +15,41 @@ export interface CatalogApi {
   getFoodItem(id: string): Promise<FoodItem | null>;
 }
 
-const delay = <T,>(ms: number, value: T) => new Promise<T>((resolve) => setTimeout(() => resolve(value), ms));
+// ---------------------------------------------------------------------------
+// Synchronous lookup cache, filled only from server responses.
+// ---------------------------------------------------------------------------
 
-export const mockCatalogApi: CatalogApi = {
-  getCategories: () => delay(100, categories),
+const restaurantCache = new Map<string, Restaurant>();
+const foodCache = new Map<string, FoodItem>();
 
-  getRestaurants({ query, cuisine } = {}) {
-    let result = restaurants;
-    const q = query?.trim().toLowerCase();
-    if (q) {
-      result = result.filter((r) =>
-        r.name.toLowerCase().includes(q) ||
-        r.tagline.toLowerCase().includes(q) ||
-        r.cuisines.some((c) => c.toLowerCase().includes(q)));
-    }
-    if (cuisine && cuisine !== 'All') result = result.filter((r) => r.cuisines.includes(cuisine));
-    return delay(300, result);
-  },
+export function cacheRestaurants(items: Restaurant[]) {
+  for (const r of items) restaurantCache.set(r.id, r);
+}
 
-  getRestaurant: (id) => delay(150, restaurants.find((r) => r.id === id) ?? null),
+export function cacheFoodItems(items: FoodItem[]) {
+  for (const f of items) foodCache.set(f.id, f);
+}
 
-  getFoodItems({ categoryId, restaurantId, query, popularOnly } = {}) {
-    let result = foodItems;
-    if (restaurantId) result = result.filter((f) => f.restaurantId === restaurantId);
-    if (categoryId && categoryId !== 'cat_all') result = result.filter((f) => f.categoryId === categoryId);
-    if (popularOnly) result = result.filter((f) => f.isPopular);
-    const q = query?.trim().toLowerCase();
-    if (q) result = result.filter((f) => f.name.toLowerCase().includes(q) || f.description.toLowerCase().includes(q));
-    return delay(250, result);
-  },
+/** Test helper / sign-out: forget everything loaded so far. */
+export function clearCatalogCache() {
+  restaurantCache.clear();
+  foodCache.clear();
+}
 
-  getFoodItem: (id) => delay(150, foodItems.find((f) => f.id === id) ?? null),
-};
+export const api: CatalogApi = createHttpCatalogApi({
+  baseUrl: API_BASE_URL,
+  onRestaurants: cacheRestaurants,
+  onFoodItems: cacheFoodItems,
+});
 
-export const api: CatalogApi = mockCatalogApi;
-
-/** Synchronous lookups for data that is already bundled (e.g. favourites lists). */
+/** Synchronous lookups for data the server has already returned. */
 export const catalog = {
-  restaurantById: (id: string) => restaurants.find((r) => r.id === id) ?? null,
-  foodById: (id: string) => foodItems.find((f) => f.id === id) ?? null,
-  allFood: foodItems,
-  allRestaurants: restaurants,
+  restaurantById: (id: string): Restaurant | null => restaurantCache.get(id) ?? null,
+  foodById: (id: string): FoodItem | null => foodCache.get(id) ?? null,
+  get allFood(): FoodItem[] {
+    return [...foodCache.values()];
+  },
+  get allRestaurants(): Restaurant[] {
+    return [...restaurantCache.values()];
+  },
 };

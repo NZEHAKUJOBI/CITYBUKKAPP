@@ -1,4 +1,4 @@
-import { foodItems } from '../data/mockData';
+import { foodItems } from '../test/fixtures';
 import type { CartItem, CustomizationOption, FoodItem } from '../types';
 import { formatNaira } from './format';
 import { computeTotals, sameSelection } from './pricing';

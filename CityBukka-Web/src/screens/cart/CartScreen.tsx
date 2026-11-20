@@ -3,7 +3,6 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
 import { Button } from '../../components/Button';
 import { EmptyState, FallbackImage, QuantitySelector } from '../../components/small';
-import { FEES } from '../../config/constants';
 import { Screen } from '../../layout/layout';
 import { formatNaira } from '../../lib/format';
 import { lineTotal } from '../../lib/pricing';
@@ -20,7 +19,12 @@ export function CartScreen() {
 
   const header = (
     <header className={styles.header}>
-      <h1 className={styles.title}>My Bukka Bag</h1>
+      <div className={styles.headerText}>
+        <h1 className={styles.title}>My Bukka Bag</h1>
+        {cart.items.length > 0 && (
+          <p className={styles.subtitle}>{cart.itemCount} {cart.itemCount === 1 ? 'item' : 'items'} ready to chop</p>
+        )}
+      </div>
       {cart.items.length > 0 && (
         <button type="button" className={`${styles.textButton} ${styles.danger}`} onClick={() => setConfirmClear(true)}>
           Clear
@@ -57,7 +61,7 @@ export function CartScreen() {
     );
   }
 
-  const freeDeliveryDiff = FEES.freeDeliveryThreshold - cart.subtotal;
+  const freeDeliveryDiff = cart.freeDeliveryThreshold - cart.subtotal;
 
   const footer = (
     <div className={styles.checkoutBar}>
@@ -74,49 +78,58 @@ export function CartScreen() {
   return (
     <Screen header={header} footer={footer}>
       <div className={styles.body}>
-        {freeDeliveryDiff > 0 ? (
-          <div className={`${styles.banner} ${styles.bannerGold}`}>
-            <Bike size={20} aria-hidden />
-            <p>Add {formatNaira(freeDeliveryDiff)} more to unlock FREE Bukka delivery!</p>
-          </div>
-        ) : (
-          <div className={`${styles.banner} ${styles.bannerGreen}`}>
-            <CircleCheck size={20} aria-hidden />
-            <p>You unlocked FREE Bukka Delivery! 🎉</p>
-          </div>
-        )}
+        <div className={styles.mainCol}>
+          {freeDeliveryDiff > 0 ? (
+            <div className={`${styles.banner} ${styles.bannerGold}`}>
+              <span className={styles.bannerIcon}><Bike size={20} aria-hidden /></span>
+              <div className={styles.bannerText}>
+                <p>Add {formatNaira(freeDeliveryDiff)} more to unlock FREE Bukka delivery!</p>
+                <span className={styles.progress} aria-hidden>
+                  <span style={{ width: `${Math.min(100, (cart.subtotal / cart.freeDeliveryThreshold) * 100)}%` }} />
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className={`${styles.banner} ${styles.bannerGreen}`}>
+              <span className={styles.bannerIcon}><CircleCheck size={20} aria-hidden /></span>
+              <p>You unlocked FREE Bukka Delivery! 🎉</p>
+            </div>
+          )}
 
-        <ul className={styles.items} aria-label="Items in your bag">
-          {cart.items.map((item) => (
-            <CartItemTile
-              key={item.id}
-              item={item}
-              onRemove={() => cart.removeItem(item.id)}
-              onQuantity={(q) => cart.updateQuantity(item.id, q)}
-            />
-          ))}
-        </ul>
+          <ul className={styles.items} aria-label="Items in your bag">
+            {cart.items.map((item) => (
+              <CartItemTile
+                key={item.id}
+                item={item}
+                onRemove={() => cart.removeItem(item.id)}
+                onQuantity={(q) => cart.updateQuantity(item.id, q)}
+              />
+            ))}
+          </ul>
+        </div>
 
-        <PromoSection />
+        <aside className={styles.sideCol}>
+          <PromoSection />
 
-        <section className={styles.card} aria-labelledby="bill-title">
-          <h2 id="bill-title" className={styles.cardTitle}>Bill Details</h2>
-          <dl className={styles.bill}>
-            <BillRow title="Item Subtotal" amount={formatNaira(cart.subtotal)} />
-            <BillRow
-              title="Delivery Partner Fee"
-              amount={cart.deliveryFee === 0 ? 'FREE' : formatNaira(cart.deliveryFee)}
-              green={cart.deliveryFee === 0}
-            />
-            <BillRow title="Eco Packaging Fee" amount={formatNaira(cart.packagingFee)} />
-            <BillRow title="Restaurant Service Fee" amount={formatNaira(cart.serviceFee)} />
-            {cart.discount > 0 && (
-              <BillRow title="Bukka Promo Discount" amount={`-${formatNaira(cart.discount)}`} green />
-            )}
-            <hr className={styles.divider} />
-            <BillRow title="Grand Total" amount={formatNaira(cart.total)} bold />
-          </dl>
-        </section>
+          <section className={styles.card} aria-labelledby="bill-title">
+            <h2 id="bill-title" className={styles.cardTitle}>Bill Details</h2>
+            <dl className={styles.bill}>
+              <BillRow title="Item Subtotal" amount={formatNaira(cart.subtotal)} />
+              <BillRow
+                title="Delivery Partner Fee"
+                amount={cart.deliveryFee === 0 ? 'FREE' : formatNaira(cart.deliveryFee)}
+                green={cart.deliveryFee === 0}
+              />
+              <BillRow title="Eco Packaging Fee" amount={formatNaira(cart.packagingFee)} />
+              <BillRow title="Restaurant Service Fee" amount={formatNaira(cart.serviceFee)} />
+              {cart.discount > 0 && (
+                <BillRow title="Bukka Promo Discount" amount={`-${formatNaira(cart.discount)}`} green />
+              )}
+              <hr className={styles.divider} />
+              <BillRow title="Grand Total" amount={formatNaira(cart.total)} bold />
+            </dl>
+          </section>
+        </aside>
       </div>
       {dialog}
     </Screen>
@@ -132,13 +145,13 @@ function CartItemTile({ item, onRemove, onQuantity }: {
         src={item.foodItem.imageUrl}
         alt=""
         className={styles.itemImage}
-        fallbackIcon={<UtensilsCrossed size={24} color="var(--primary)" />}
+        fallbackIcon={<UtensilsCrossed size={24} />}
       />
       <div className={styles.itemBody}>
         <div className={styles.itemTop}>
           <h3 className={styles.itemName}>{item.foodItem.name}</h3>
           <button type="button" className={styles.iconButton} aria-label={`Remove ${item.foodItem.name}`} onClick={onRemove}>
-            <X size={18} />
+            <X size={18} aria-hidden />
           </button>
         </div>
         {item.selectedOptions.length > 0 && (
@@ -163,7 +176,7 @@ function PromoSection() {
   if (promoCode) {
     return (
       <div className={styles.promoApplied}>
-        <Ticket size={20} aria-hidden />
+        <span className={styles.promoAppliedIcon}><Ticket size={18} aria-hidden /></span>
         <p>Code {promoCode} Applied (-{formatNaira(discount)})</p>
         <button
           type="button"
@@ -174,7 +187,7 @@ function PromoSection() {
             setMessage(null);
           }}
         >
-          <X size={18} />
+          <X size={18} aria-hidden />
         </button>
       </div>
     );
@@ -195,6 +208,7 @@ function PromoSection() {
   return (
     <form className={styles.promo} onSubmit={submit} noValidate>
       <div className={styles.promoRow}>
+        <Ticket size={18} className={styles.promoIcon} aria-hidden />
         <label htmlFor="promo-code" className="visually-hidden">Promo code</label>
         <input
           id="promo-code"

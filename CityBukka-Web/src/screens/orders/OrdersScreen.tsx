@@ -1,15 +1,21 @@
-import { History, Navigation, ReceiptText } from 'lucide-react';
-import { useState, type KeyboardEvent } from 'react';
-import { Link } from 'react-router';
-import { EmptyState } from '../../components/small';
+import { History, Navigation, ReceiptText, RotateCcw, UtensilsCrossed, WifiOff } from 'lucide-react';
+import { useEffect, useState, type KeyboardEvent } from 'react';
+import { Link, useNavigate } from 'react-router';
+import { errorMessage } from '../../data/client';
+import { LoadingScreen } from '../../state/AuthContext';
+import { useCart } from '../../state/CartContext';
+import { EmptyState, FallbackImage } from '../../components/small';
 import { Screen } from '../../layout/layout';
 import { formatNaira, ORDER_STATUS_INFO } from '../../lib/format';
+import { OrderStatus } from '../../types';
 import { useOrders } from '../../state/OrdersContext';
 import { useToast } from '../../state/ToastContext';
 import type { Order } from '../../types';
 import styles from './OrdersScreen.module.css';
 
 type Tab = 'active' | 'past';
+const dateFormat = new Intl.DateTimeFormat('en-NG', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+
 const TABS: { id: Tab; label: string }[] = [
   { id: 'active', label: 'Active Feasts' },
   { id: 'past', label: 'Order History' },
@@ -17,7 +23,10 @@ const TABS: { id: Tab; label: string }[] = [
 
 /** Port of OrdersScreen: "My Orders" with Active / History tabs. */
 export function OrdersScreen() {
-  const { activeOrders, pastOrders } = useOrders();
+  const { activeOrders, pastOrders, loading, error, refresh } = useOrders();
+
+  // Refresh when the tab is opened so statuses are current.
+  useEffect(() => { void refresh(); }, [refresh]);
   const [tab, setTab] = useState<Tab>('active');
 
   const onTabKey = (e: KeyboardEvent) => {
@@ -56,7 +65,17 @@ export function OrdersScreen() {
       }
     >
       <div id="orders-panel" role="tabpanel" aria-labelledby={`orders-tab-${tab}`} className={styles.panel}>
-        {list.length === 0 ? (
+        {loading && list.length === 0 ? (
+          <LoadingScreen label="Loading orders" />
+        ) : error && list.length === 0 ? (
+          <EmptyState
+            icon={<WifiOff size={56} />}
+            title="Can't load your orders"
+            message={errorMessage(error)}
+            buttonText="Try again"
+            onButtonClick={() => void refresh()}
+          />
+        ) : list.length === 0 ? (
           tab === 'active' ? (
             <EmptyState
               icon={<ReceiptText size={56} />}
@@ -84,18 +103,56 @@ export function OrdersScreen() {
 
 function OrderCard({ order, isActive }: { order: Order; isActive: boolean }) {
   const toast = useToast();
+  const { addItem } = useCart();
+  const navigate = useNavigate();
   const info = ORDER_STATUS_INFO[order.status];
+
+  const reorder = () => {
+    for (const item of order.items) {
+      addItem({
+        foodItem: item.foodItem,
+        quantity: item.quantity,
+        selectedOptions: item.selectedOptions,
+        specialInstructions: item.specialInstructions,
+      });
+    }
+    toast('Items added to your Bukka bag. Prices are re-checked at checkout.', 'success');
+    navigate('/bag');
+  };
   const to = `/orders/${order.id}`;
+  const itemCount = order.items.reduce((n, i) => n + i.quantity, 0);
+  const statusClass = isActive
+    ? styles.statusActive
+    : order.status === OrderStatus.cancelled ? styles.statusCancelled : styles.statusPast;
 
   return (
-    <article className={styles.card}>
+    <article className={`${styles.card} ${isActive ? styles.cardActive : ''}`}>
       <div className={styles.row}>
-        {/* The link's ::after covers the whole card, so tapping anywhere opens the order. */}
-        <Link to={to} className={styles.cardLink}>Order #{order.id}</Link>
-        <span className={`${styles.status} ${isActive ? styles.statusActive : styles.statusPast}`}>{info.title}</span>
+        <div className={styles.idCol}>
+          {/* The link's ::after covers the whole card, so tapping anywhere opens the order. */}
+          <Link to={to} className={styles.cardLink}>Order #{order.id}</Link>
+          <time className={styles.date} dateTime={order.createdAt}>{dateFormat.format(new Date(order.createdAt))}</time>
+        </div>
+        <span className={`${styles.status} ${statusClass}`}>{info.title}</span>
       </div>
+
+      {itemCount > 0 && (
+        <div className={styles.itemsRow}>
+          <div className={styles.thumbs} aria-hidden>
+            {order.items.slice(0, 3).map((item) => (
+              <FallbackImage key={item.id} src={item.foodItem.imageUrl} alt="" className={styles.thumb}
+                fallbackIcon={<UtensilsCrossed size={16} />} />
+            ))}
+          </div>
+          <p className={`${styles.itemsText} clamp-2`}>
+            {itemCount} {itemCount === 1 ? 'item' : 'items'} · {order.items.map((i) => i.foodItem.name).join(', ')}
+          </p>
+        </div>
+      )}
+
       <p className={`${styles.address} ellipsis`}>{order.deliveryAddress}</p>
-      <div className={styles.row}>
+
+      <div className={`${styles.row} ${styles.footRow}`}>
         <div>
           <p className={styles.totalLabel}>Total Paid</p>
           <p className={styles.total}>{formatNaira(order.total)}</p>
@@ -108,9 +165,10 @@ function OrderCard({ order, isActive }: { order: Order; isActive: boolean }) {
           <button
             type="button"
             className={styles.reorder}
-            onClick={() => toast('Re-order feature: Items added to your Bukka bag!')}
+            onClick={reorder}
+            disabled={itemCount === 0}
           >
-            Re-order
+            <RotateCcw size={15} aria-hidden /> Re-order
           </button>
         )}
       </div>

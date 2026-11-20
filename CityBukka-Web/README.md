@@ -1,8 +1,8 @@
 # CityBukka Web
 
 The Chop City Bukka customer app as a **React + TypeScript** progressive web app.
-It replaces the Flutter web build (`../CityBukka-MX`); the Flutter project is still
-used for the Android and iOS apps.
+It is the only client: there are no native Android or iOS apps. Phones install it
+from the browser ("Install app" / "Add to Home Screen").
 
 ## Run
 
@@ -22,28 +22,32 @@ for unknown paths (single-page app), e.g. Netlify `_redirects`: `/* /index.html 
 
 ```
 src/
-  types.ts              domain models (same JSON shapes as the Dart models and the server)
+  types.ts              domain models (same JSON shapes as the server)
   config/constants.ts   fees, promo codes, payment methods, hotlines
-  data/api.ts           catalogue API – mock implementation today, same shape as the server's
-  data/mockData.ts      generated from CityBukka-Server/src/db/seed.js
+  data/api.ts           public catalogue API (CityBukka-Server); no bundled demo data
+  data/client.ts        JSON client: Bearer session (localStorage, 30-day token), ApiError, 401 handling
+  data/customerApi.ts   auth, /api/me, favourites, orders, cart quote, /api/meta
+  test/                 test-only fixtures + in-memory fake server (never imported by app code)
   lib/                  formatting and pricing (kobo-precise)
-  state/                Cart, User (profile, favourites, theme), Orders, Toast contexts
-  components/           shared widgets ported from lib/ui/core/widgets
+  state/                Auth, Cart, User (profile, favourites, theme), Orders, Toast contexts
+  components/           shared widgets
   layout/               phone frame, tab bar, splash, <Screen>
-  screens/              one folder per Flutter feature
+  screens/              one folder per feature
 ```
 
 ## PWA
 
 `vite-plugin-pwa` generates the manifest and a Workbox service worker:
-the app shell is precached, food photos are cached (up to 80, 30 days), and `/api`
-calls are network-first. Installable on Android/desktop Chrome and via
+the app shell is precached, uploaded photos (`/uploads/`) are cache-first, the public
+catalogue/meta endpoints are network-first, and per-customer endpoints are never cached. Installable on Android/desktop Chrome and via
 "Add to Home Screen" on iOS.
 
-## Differences from the Flutter app
+## Notes
 
-- Cart, favourites, profile and orders are saved on the device (localStorage), so they
-  survive restarts. In Flutter they were in memory only.
-- Orders get a rider when they reach "Rider Assigned", not at checkout, like the server.
-- Data still comes from bundled mock data. Switching `src/data/api.ts` and the order
-  functions to `CityBukka-Server` is the next step.
+- Everything comes from CityBukka-Server. Until the admin adds restaurants, dishes, photos
+  and prices, the app shows "Our menu is being prepared". Missing photos show a branded
+  placeholder, never a stock photo.
+- Browsing is public. Saved, Orders, Checkout, Profile and order tracking require a
+  customer account (phone + password at /login, /register). The bag is kept on the device
+  and can be filled while signed out.
+- Order tracking polls every 15 s while an order is active and shows the assigned rider.

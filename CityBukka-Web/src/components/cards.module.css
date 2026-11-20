@@ -1,124 +1,210 @@
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
+  height: 100%;
   background: var(--surface);
-  border: 0.8px solid var(--divider);
-  border-radius: 16px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.12s, border-color 0.15s;
+  transition:
+    transform var(--dur) var(--ease-out),
+    box-shadow var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out);
 }
 
-.card:hover {
-  border-color: color-mix(in srgb, var(--divider) 60%, var(--green));
+@media (hover: hover) {
+  .card:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
+  }
+
+  .card:hover .foodImage img,
+  .card:hover .coverImage img {
+    transform: scale(1.045);
+  }
 }
 
 .card:active {
   transform: scale(0.99);
 }
 
-.restaurant {
-  border-radius: var(--radius-lg);
+/* Keyboard focus on the inner name button highlights the whole card. */
+.card:has(.openLink:focus-visible) {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
 }
 
+.restaurant {
+  border-radius: var(--radius-xl);
+}
+
+/* ---------- Media ---------- */
 .media {
   position: relative;
 }
 
 .foodImage {
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 4 / 3;
 }
 
 .coverImage {
   aspect-ratio: 16 / 9;
 }
 
-.spice {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  padding: 3px 7px;
-  border-radius: var(--radius-sm);
-  background: rgba(0, 0, 0, 0.75);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 600;
+.foodImage img,
+.coverImage img {
+  transition: transform var(--dur-slow) var(--ease-out), opacity var(--dur-slow) var(--ease-out);
 }
 
-.favorite {
+.scrim {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.4);
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0) 32%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.45) 100%);
+  pointer-events: none;
 }
 
-.restaurant .favorite {
-  top: 10px;
-  right: 10px;
+.tags {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  right: 56px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.featured {
-  position: absolute;
-  top: 10px;
-  left: 10px;
+.tag {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-  background: var(--gradient-primary);
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: var(--radius-pill);
+  background: rgba(10, 18, 13, 0.62);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   color: #fff;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.tagGold {
+  background: var(--secondary);
+  color: #1a1206;
+}
+
+.tagHot {
+  background: var(--gradient-primary);
+  letter-spacing: 0.06em;
+  font-weight: var(--weight-heavy);
+}
+
+/* 44px hit area, 36px visible disc. */
+.favorite {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: grid;
+  place-items: center;
+  width: var(--touch);
+  height: var(--touch);
+  border-radius: 50%;
+  color: #fff;
+}
+
+.favorite::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: rgba(10, 18, 13, 0.5);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: background var(--dur) var(--ease-out), transform var(--dur) var(--ease-spring);
+}
+
+.favorite svg {
+  position: relative;
+  transition: transform var(--dur) var(--ease-spring);
+}
+
+.favorite:hover::before {
+  background: rgba(10, 18, 13, 0.7);
+}
+
+.favorite:active svg {
+  transform: scale(0.85);
+}
+
+.favoriteOn {
+  color: var(--favorite);
+}
+
+.favoriteOn::before {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.favoriteOn:hover::before {
+  background: #fff;
 }
 
 .eta {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
+  left: var(--space-3);
+  bottom: var(--space-3);
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   padding: 5px 10px;
-  border-radius: 20px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.94);
+  color: #13201a;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  box-shadow: var(--shadow-sm);
 }
 
+.eta svg {
+  color: var(--primary);
+}
+
+/* ---------- Body ---------- */
 .body {
   display: flex;
   flex-direction: column;
-  padding: 12px;
   flex: 1;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+.restaurantBody {
+  padding: var(--space-4);
 }
 
 .titleRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .foodName {
-  font-size: 15px;
-  font-weight: 700;
   min-width: 0;
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.005em;
 }
 
 .restaurantName {
-  font-size: 16px;
-  font-weight: 800;
   min-width: 0;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 /* Name is a real button for keyboard/screen-reader users; looks like plain text. */
@@ -128,18 +214,23 @@
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.openLink:focus-visible {
+  outline: none;
 }
 
 .description {
-  margin-top: 4px;
-  font-size: 12px;
-  line-height: 1.3;
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  line-height: 1.4;
   color: var(--text-secondary);
 }
 
 .tagline {
-  margin-top: 4px;
-  font-size: 13px;
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
   color: var(--text-secondary);
 }
 
@@ -147,43 +238,149 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-2);
   margin-top: auto;
-  padding-top: 10px;
+  padding-top: var(--space-3);
+}
+
+.priceBlock {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
 }
 
 .price {
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--primary);
+  font-size: var(--text-md);
+  font-weight: var(--weight-heavy);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.veg {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--green-soft);
+  color: var(--green-text);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
 }
 
 .add {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 6px 10px;
-  border-radius: 10px;
+  gap: 4px;
+  min-height: 40px;
+  padding: 0 var(--space-4) 0 var(--space-3);
+  border-radius: var(--radius-pill);
   background: var(--primary);
   color: #fff;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  box-shadow: var(--shadow-primary);
+  flex-shrink: 0;
+  transition: background var(--dur) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+
+/* Extend the hit target to 44px without growing the pill. */
+.add::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+}
+
+.add {
+  position: relative;
+}
+
+.add:hover {
+  background: var(--primary-dark);
+}
+
+.add:active {
+  transform: scale(0.95);
+}
+
+.add:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .meta {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 10px;
-  font-size: 12px;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  font-size: var(--text-xs);
   color: var(--text-muted);
 }
 
 .meta span {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
+}
+
+.dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 .fee {
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
+}
+
+/* ---------- Phones: dish cards become compact horizontal rows ---------- */
+@media (max-width: 559px) {
+  .card:not(.restaurant) {
+    flex-direction: row;
+    border-radius: var(--radius-lg);
+  }
+
+  .card:not(.restaurant) .media {
+    flex: 0 0 auto;
+    width: 118px;
+    align-self: stretch;
+  }
+
+  .card:not(.restaurant) .foodImage {
+    aspect-ratio: auto;
+    height: 100%;
+    min-height: 136px;
+  }
+
+  .card:not(.restaurant) .scrim {
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.45) 100%);
+  }
+
+  .card:not(.restaurant) .tags {
+    top: auto;
+    bottom: var(--space-2);
+    left: var(--space-2);
+    right: var(--space-2);
+  }
+
+  .card:not(.restaurant) .tagGold {
+    display: none;
+  }
+
+  .card:not(.restaurant) .favorite {
+    top: 0;
+    right: 0;
+  }
+
+  .card:not(.restaurant) .body {
+    min-width: 0;
+    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+  }
+
+  .card:not(.restaurant) .priceRow {
+    padding-top: var(--space-2);
+  }
 }

@@ -4,14 +4,14 @@ import { SearchBar } from '../../components/small';
 import styles from './HomeScreen.module.css';
 
 /**
- * Port of FadedAppHeader: delivery location, Grab & Go hotline pill, notifications
- * and the search bar. With `transparentBackground` (as on Home) the screen paints
- * the banner itself; otherwise the header carries its own faded banner.
+ * Port of FadedAppHeader: delivery location, Grab & Go hotline pill, notifications,
+ * a welcome headline and the search bar. With `transparentBackground` (as on Home)
+ * the screen paints the banner itself; otherwise the header carries its own faded banner.
  */
 export function FadedHeader({
   searchValue, onSearchChange, onFilterClick, onNotificationClick, onGrabAndGoClick,
   addressTitle = 'Delivering to Minna',
-  addressSubtitle = 'Shiroro Road by Unity Block, Minna',
+  addressSubtitle = '',
   transparentBackground = false,
 }: {
   searchValue: string;
@@ -26,19 +26,19 @@ export function FadedHeader({
   return (
     <header className={`${styles.header} ${transparentBackground ? '' : styles.headerFilled}`}>
       {!transparentBackground && (
-        <>
-          <img src={banner} alt="" className={styles.headerBanner} aria-hidden />
-          <span className={styles.headerFade} aria-hidden />
-        </>
+        <div className={styles.heroMedia} aria-hidden>
+          <img src={banner} alt="" className={styles.heroImage} />
+          <span className={styles.heroScrim} />
+        </div>
       )}
       <div className={styles.headerInner}>
         <div className={styles.headerTop}>
           <div className={styles.location}>
-            <span className={styles.locationIcon} aria-hidden><MapPin size={18} fill="currentColor" stroke="var(--bg)" /></span>
+            <span className={styles.locationIcon} aria-hidden><MapPin size={18} /></span>
             <div className={styles.locationText}>
               <p className={styles.locationTitle}>
                 <span className="ellipsis">{addressTitle}</span>
-                <ChevronDown size={18} aria-hidden />
+                <ChevronDown size={16} aria-hidden />
               </p>
               <p className={`${styles.locationSubtitle} ellipsis`}>{addressSubtitle}</p>
             </div>
@@ -46,17 +46,26 @@ export function FadedHeader({
 
           <div className={styles.headerActions}>
             <button type="button" className={styles.grabPill} onClick={onGrabAndGoClick} aria-haspopup="dialog">
-              <PhoneCall size={13} aria-hidden />
+              <PhoneCall size={14} aria-hidden />
               Grab &amp; Go
             </button>
             <button type="button" className={styles.bell} onClick={onNotificationClick} aria-label="Notifications">
-              <Bell size={22} aria-hidden />
+              <Bell size={20} aria-hidden />
               <span className={styles.bellDot} aria-hidden />
             </button>
           </div>
         </div>
 
-        <SearchBar value={searchValue} onChange={onSearchChange} onFilterClick={onFilterClick} />
+        <div className={styles.headline}>
+          <p className={styles.eyebrow}>Chop City Bukka · Minna</p>
+          <h1 className={styles.headlineTitle}>
+            Smoky jollof, rich soups &amp; suya — <em>delivered hot.</em>
+          </h1>
+        </div>
+
+        <div className={styles.searchWrap}>
+          <SearchBar value={searchValue} onChange={onSearchChange} onFilterClick={onFilterClick} />
+        </div>
       </div>
     </header>
   );

@@ -27,3 +27,17 @@ export function usePersistentState<T>(key: string, initial: T | (() => T)) {
   useEffect(() => save(key, value), [key, value]);
   return [value, setValue] as const;
 }
+
+/**
+ * Keys written by earlier builds that kept demo data on the device (sample orders,
+ * a fake profile, favourites and a cart of demo dishes). Removed once on start-up.
+ */
+const LEGACY_KEYS = ['profile', 'orders', 'favorites:food', 'favorites:restaurants', 'cart'];
+
+export function purgeLegacyData() {
+  try {
+    for (const key of LEGACY_KEYS) localStorage.removeItem(PREFIX + key);
+  } catch {
+    // Storage blocked – nothing to clean.
+  }
+}

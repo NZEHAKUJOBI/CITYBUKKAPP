@@ -1,12 +1,12 @@
 import {
-  ArrowLeft, Circle, CircleDot, Flame, Heart, SearchX, Square, SquareCheck, Timer, UtensilsCrossed,
+  ArrowLeft, Circle, CircleDot, Flame, Heart, Leaf, SearchX, Square, SquareCheck, Timer, UtensilsCrossed, WifiOff,
 } from 'lucide-react';
 import { useEffect, useId, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { Button } from '../../components/Button';
 import { PageHeader } from '../../components/PageHeader';
 import { EmptyState, FallbackImage, QuantitySelector, RatingBadge } from '../../components/small';
-import { Spinner } from '../../components/Spinner';
+import { LoadingRegion, Skeleton } from '../../components/Skeleton';
 import { api } from '../../data/api';
 import { Screen } from '../../layout/layout';
 import { formatNaira, SPICE_LABELS } from '../../lib/format';
@@ -26,20 +26,48 @@ export function DishDetailScreen() {
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const [dish, setDish] = useState<FoodItem | null | undefined>(undefined);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     setDish(undefined);
-    api.getFoodItem(id).then((item) => { if (!cancelled) setDish(item); });
+    setFailed(false);
+    api.getFoodItem(id).then(
+      (item) => { if (!cancelled) setDish(item); },
+      () => { if (!cancelled) setFailed(true); },
+    );
     return () => { cancelled = true; };
-  }, [id]);
+  }, [id, attempt]);
 
   const goBack = () => (window.history.length > 1 ? navigate(-1) : navigate('/'));
+
+  if (failed) {
+    return (
+      <Screen header={<PageHeader title="Dish" onBack={goBack} />}>
+        <EmptyState
+          icon={<WifiOff size={56} />}
+          title="Can't load this dish"
+          message="We couldn't reach CityBukka. Check your connection and try again."
+          buttonText="Try again"
+          onButtonClick={() => setAttempt((n) => n + 1)}
+        />
+      </Screen>
+    );
+  }
 
   if (dish === undefined) {
     return (
       <Screen header={<PageHeader title="" onBack={goBack} />}>
-        <div className={styles.center}><Spinner color="var(--primary)" label="Loading dish" /></div>
+        <LoadingRegion label="Loading dish" className={styles.layout}>
+          <Skeleton className={styles.heroImage} radius={0} />
+          <div className={styles.body}>
+            <Skeleton width="70%" height={30} radius={10} />
+            <Skeleton width="45%" height={14} style={{ marginTop: 14 }} />
+            <Skeleton height={64} style={{ marginTop: 20 }} />
+            <Skeleton height={180} radius={18} style={{ marginTop: 24 }} />
+          </div>
+        </LoadingRegion>
       </Screen>
     );
   }
@@ -89,16 +117,16 @@ function DishDetail({ dish, onBack }: { dish: FoodItem; onBack: () => void }) {
     <div className={styles.root}>
       <div className={styles.topBar}>
         <button type="button" className={styles.circleButton} onClick={onBack} aria-label="Go back">
-          <ArrowLeft size={22} />
+          <ArrowLeft size={22} aria-hidden />
         </button>
         <button
           type="button"
-          className={styles.circleButton}
+          className={`${styles.circleButton} ${favorite ? styles.favoriteOn : ''}`}
           onClick={() => toggleFoodFavorite(dish.id)}
           aria-pressed={favorite}
           aria-label={favorite ? `Remove ${dish.name} from saved` : `Save ${dish.name}`}
         >
-          <Heart size={22} fill={favorite ? 'var(--favorite)' : 'none'} color={favorite ? 'var(--favorite)' : '#fff'} />
+          <Heart size={22} fill={favorite ? 'currentColor' : 'none'} aria-hidden />
         </button>
       </div>
 
@@ -112,57 +140,60 @@ function DishDetail({ dish, onBack }: { dish: FoodItem; onBack: () => void }) {
               disabled={missing.length > 0}
               aria-describedby={missing.length > 0 ? hintId : undefined}
             >
-              Add to Bag • {formatNaira(total)}
+              Add to Bag <span aria-hidden>•</span> {formatNaira(total)}
             </Button>
           </div>
         }
       >
-        <div className={styles.hero}>
-          <FallbackImage src={dish.imageUrl} alt={dish.name} className={styles.heroImage}
-            fallbackIcon={<UtensilsCrossed size={64} />} />
-          <div className={styles.heroShade} aria-hidden />
-        </div>
-
-        <div className={styles.body}>
-          <div className={styles.titleRow}>
-            <h1 className={styles.title}>{dish.name}</h1>
-            <RatingBadge rating={dish.rating} reviewCount={dish.reviewCount} />
+        <div className={styles.layout}>
+          <div className={styles.hero}>
+            <FallbackImage src={dish.imageUrl} alt={dish.name} className={styles.heroImage}
+              fallbackIcon={<UtensilsCrossed size={64} />} priority />
+            <div className={styles.heroShade} aria-hidden />
           </div>
 
-          <div className={styles.pills}>
-            <span className={styles.pill}><Timer size={14} aria-hidden /> {dish.prepTimeMinutes} mins</span>
-            <span className={styles.pill}><Flame size={14} aria-hidden /> {dish.calories} kcal</span>
-            <span className={styles.spicePill}>{SPICE_LABELS[dish.spiceLevel]}</span>
-          </div>
+          <div className={styles.body}>
+            <div className={styles.titleRow}>
+              <h1 className={styles.title}>{dish.name}</h1>
+              <RatingBadge rating={dish.rating} reviewCount={dish.reviewCount} />
+            </div>
 
-          <p className={styles.description}>{dish.description}</p>
+            <div className={styles.pills}>
+              <span className={styles.pill}><Timer size={14} aria-hidden /> {dish.prepTimeMinutes} mins</span>
+              <span className={styles.pill}><Flame size={14} aria-hidden /> {dish.calories} kcal</span>
+              <span className={styles.spicePill}>{SPICE_LABELS[dish.spiceLevel]}</span>
+              {dish.isVegetarian && <span className={styles.vegPill}><Leaf size={14} aria-hidden /> Vegetarian</span>}
+            </div>
 
-          {groups.map((group) => (
-            <OptionGroup
-              key={group.id}
-              group={group}
-              selected={selection[group.id] ?? []}
-              onToggle={(optionId) => setSelection((s) => toggleOption(s, group, optionId))}
+            <p className={styles.description}>{dish.description}</p>
+
+            {groups.map((group) => (
+              <OptionGroup
+                key={group.id}
+                group={group}
+                selected={selection[group.id] ?? []}
+                onToggle={(optionId) => setSelection((s) => toggleOption(s, group, optionId))}
+              />
+            ))}
+
+            <label htmlFor={instructionsId} className={styles.sectionTitle}>Special Instructions</label>
+            <textarea
+              id={instructionsId}
+              className={styles.instructions}
+              rows={2}
+              maxLength={MAX_INSTRUCTIONS}
+              value={instructions}
+              onChange={(e) => setInstructions(e.target.value)}
+              placeholder="e.g. Extra spicy, no onions, pack soup separately..."
             />
-          ))}
+            <p className={styles.counter} aria-live="polite">{instructions.length}/{MAX_INSTRUCTIONS}</p>
 
-          <label htmlFor={instructionsId} className={styles.sectionTitle}>Special Instructions</label>
-          <textarea
-            id={instructionsId}
-            className={styles.instructions}
-            rows={2}
-            maxLength={MAX_INSTRUCTIONS}
-            value={instructions}
-            onChange={(e) => setInstructions(e.target.value)}
-            placeholder="e.g. Extra spicy, no onions, pack soup separately..."
-          />
-          <p className={styles.counter} aria-live="polite">{instructions.length}/{MAX_INSTRUCTIONS}</p>
-
-          {missing.length > 0 && (
-            <p id={hintId} className={styles.missing}>
-              Choose {missing.map((g) => g.name).join(', ')} to continue.
-            </p>
-          )}
+            {missing.length > 0 && (
+              <p id={hintId} className={styles.missing}>
+                Choose {missing.map((g) => g.name).join(', ')} to continue.
+              </p>
+            )}
+          </div>
         </div>
       </Screen>
     </div>
