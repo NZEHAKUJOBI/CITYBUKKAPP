@@ -1,0 +1,45 @@
+# Render Blueprint: Render dashboard → New → Blueprint → pick this repo.
+# Creates the PostgreSQL database and one Docker web service (API + web app on one URL).
+# Reference: https://render.com/docs/blueprint-spec
+
+databases:
+  - name: citybukka-db
+    databaseName: citybukka
+    user: citybukka
+    region: frankfurt          # closest Render region to Nigeria; keep it the same as the service
+    plan: basic-256mb          # "free" works for trying it out, but Render deletes free databases after 30 days (+14-day grace)
+    postgresMajorVersion: "17"
+
+services:
+  - type: web
+    name: citybukka
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    region: frankfurt
+    plan: starter              # persistent disks need a paid plan; on "free" remove the disk block (uploads are then lost on each deploy)
+    healthCheckPath: /health
+    autoDeploy: true
+    disk:
+      name: citybukka-data
+      mountPath: /var/data     # admin image uploads live in /var/data/uploads
+      sizeGB: 1
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: citybukka-db
+          property: connectionString   # internal URL: private network, no TLS needed
+      - key: DATABASE_SSL
+        value: "false"
+      - key: NODE_ENV
+        value: production
+      - key: AUTH_TOKEN_SECRET
+        generateValue: true            # random, kept across deploys so logins survive restarts
+      - key: ADMIN_TOKEN_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false                    # you are asked for these when the Blueprint is created
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_NAME
+        value: Admin

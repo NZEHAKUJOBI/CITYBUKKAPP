@@ -1,0 +1,13 @@
+**/node_modules
+**/dist
+**/dev-dist
+**/coverage
+**/.env
+**/.env.*
+!**/.env.example
+**/data
+**/*.log
+.git
+.vscode
+.idea
+**/.DS_Store
