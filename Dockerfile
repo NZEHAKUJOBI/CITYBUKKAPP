@@ -2,7 +2,8 @@
 # web app (CityBukka-Web) from the same origin.
 #
 #   docker build -t citybukka .
-#   docker run -p 8080:8080 -e DATABASE_URL=postgres://... citybukka
+#   docker run -p 8080:8080 -v cbdata:/var/data -e POSTGRES_PASSWORD=... citybukka   (bundled PostgreSQL)
+#   docker run -p 8080:8080 -e DATABASE_URL=postgres://... citybukka                (external database)
 
 ARG NODE_VERSION=24
 
@@ -24,14 +25,16 @@ RUN npm ci --omit=dev --no-audit --no-fund
 
 # ---- 3. Runtime ----------------------------------------------------------------------
 FROM node:${NODE_VERSION}-alpine
-# su-exec: drop from root to the unprivileged "node" user after fixing upload-dir ownership.
-RUN apk add --no-cache su-exec
+# su-exec: drop from root to the unprivileged "node" / "postgres" users.
+# postgresql17: bundled database, started by the entrypoint when DATABASE_URL is empty.
+RUN apk add --no-cache su-exec postgresql17 postgresql17-client
 WORKDIR /app
 
 ENV NODE_ENV=production \
     PORT=8080 \
     STATIC_DIR=/app/public \
-    UPLOAD_DIR=/var/data/uploads
+    UPLOAD_DIR=/var/data/uploads \
+    PGDATA=/var/data/postgres
 
 COPY --from=server-deps /app/node_modules ./node_modules
 COPY CityBukka-Server/package.json ./
@@ -42,7 +45,8 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
  && mkdir -p /var/data/uploads && chown -R node:node /var/data
 
 EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+VOLUME /var/data
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
   CMD wget -qO- "http://127.0.0.1:${PORT}/health" >/dev/null || exit 1
 
 ENTRYPOINT ["docker-entrypoint.sh"]

@@ -1,10 +1,11 @@
-# Chop City Bukka on Dokploy (or any Docker host): the app image plus PostgreSQL.
+# Chop City Bukka on Dokploy (or any Docker host): one container running the app and its
+# bundled PostgreSQL server. Database files and uploaded images live in the "data" volume.
 #
 # Dokploy: Project → Create Service → Compose → this repo, Compose Path ./docker-compose.yml.
 # Set the variables below in the service's Environment tab, then add a domain for the
 # "app" service on port 8080. See DEPLOY-DOKPLOY.md.
 #
-# No ports are published: Dokploy's Traefik routes the domain to the "app" container.
+# No ports are published: Dokploy's Traefik routes the domain to the container.
 # For a plain local run, add   ports: ["8080:8080"]   under "app".
 
 services:
@@ -13,39 +14,22 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
+    stop_grace_period: 30s   # time for the app and PostgreSQL to shut down cleanly
     environment:
       NODE_ENV: production
       PORT: 8080
-      DATABASE_URL: postgres://${POSTGRES_USER:-citybukka}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-citybukka}
-      DATABASE_SSL: "false"   # private Docker network, no TLS needed
+      POSTGRES_USER: ${POSTGRES_USER:-citybukka}
+      POSTGRES_DB: ${POSTGRES_DB:-citybukka}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
       AUTH_TOKEN_SECRET: ${AUTH_TOKEN_SECRET:?set AUTH_TOKEN_SECRET}
       ADMIN_TOKEN_SECRET: ${ADMIN_TOKEN_SECRET:?set ADMIN_TOKEN_SECRET}
       ADMIN_EMAIL: ${ADMIN_EMAIL:?set ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD}
       ADMIN_NAME: ${ADMIN_NAME:-Admin}
     volumes:
-      - uploads:/var/data/uploads
+      - data:/var/data   # /var/data/postgres (database) and /var/data/uploads (images)
     expose:
       - "8080"
 
-  db:
-    image: postgres:17-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-citybukka}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB:-citybukka}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
 volumes:
-  pgdata:
-  uploads:
+  data:

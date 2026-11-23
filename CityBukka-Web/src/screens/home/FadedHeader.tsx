@@ -58,9 +58,6 @@ export function FadedHeader({
 
         <div className={styles.headline}>
           <p className={styles.eyebrow}>Chop City Bukka · Minna</p>
-          <h1 className={styles.headlineTitle}>
-            Smoky jollof, rich soups &amp; suya — <em>delivered hot.</em>
-          </h1>
         </div>
 
         <div className={styles.searchWrap}>
